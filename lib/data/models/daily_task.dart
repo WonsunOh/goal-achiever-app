@@ -17,6 +17,7 @@ class DailyTask with _$DailyTask {
     DateTime? reminderTime,
     @Default(Priority.medium) Priority priority,
     required DateTime createdAt,
+    String? completionNote, // 완료 시 메모/소감
   }) = _DailyTask;
 
   factory DailyTask.fromJson(Map<String, dynamic> json) =>

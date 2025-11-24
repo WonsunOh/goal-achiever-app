@@ -141,7 +141,7 @@ class _GoalByIdProviderElement extends AutoDisposeFutureProviderElement<Goal?>
   String get id => (origin as GoalByIdProvider).id;
 }
 
-String _$goalViewModelHash() => r'3b68159281a27fd66ea5546af036da0ab1a6c986';
+String _$goalViewModelHash() => r'11b30dce454071f3360160c7026ab19d39ba7f62';
 
 /// See also [GoalViewModel].
 @ProviderFor(GoalViewModel)

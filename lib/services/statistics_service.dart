@@ -62,16 +62,17 @@ class MonthlyStats {
     required this.dailyStats,
   })  : totalTasks = dailyStats.fold(0, (sum, d) => sum + d.totalTasks),
         completedTasks = dailyStats.fold(0, (sum, d) => sum + d.completedTasks),
-        completionRate = dailyStats.isEmpty
-            ? 0
-            : dailyStats
-                    .where((d) => d.totalTasks > 0)
-                    .fold(0.0, (sum, d) => sum + d.completionRate) /
-                dailyStats.where((d) => d.totalTasks > 0).length,
+        completionRate = _calculateCompletionRate(dailyStats),
         perfectDays = dailyStats
             .where((d) => d.totalTasks > 0 && d.completionRate == 1.0)
             .length,
         activeDays = dailyStats.where((d) => d.totalTasks > 0).length;
+
+  static double _calculateCompletionRate(List<DailyStats> dailyStats) {
+    final activeDays = dailyStats.where((d) => d.totalTasks > 0).toList();
+    if (activeDays.isEmpty) return 0.0;
+    return activeDays.fold(0.0, (sum, d) => sum + d.completionRate) / activeDays.length;
+  }
 }
 
 // 카테고리별 통계
@@ -142,10 +143,10 @@ class OverallStats {
     required this.completedTasks,
     required this.currentStreak,
     required this.longestStreak,
-    required this.overallCompletionRate,
+    required double completionRate,
     required this.goalsByCategory,
     required this.tasksByPriority,
-  });
+  }) : overallCompletionRate = completionRate.isNaN || completionRate.isInfinite ? 0.0 : completionRate;
 }
 
 class StatisticsService {
@@ -356,7 +357,7 @@ class StatisticsService {
       completedTasks: completedTasks,
       currentStreak: calculateStreak(tasks),
       longestStreak: calculateLongestStreak(tasks),
-      overallCompletionRate: tasks.isEmpty ? 0 : completedTasks / tasks.length,
+      completionRate: tasks.isEmpty ? 0.0 : completedTasks / tasks.length,
       goalsByCategory: goalsByCategory,
       tasksByPriority: tasksByPriority,
     );

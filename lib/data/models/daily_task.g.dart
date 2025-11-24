@@ -24,6 +24,7 @@ _$DailyTaskImpl _$$DailyTaskImplFromJson(Map<String, dynamic> json) =>
           $enumDecodeNullable(_$PriorityEnumMap, json['priority']) ??
           Priority.medium,
       createdAt: DateTime.parse(json['createdAt'] as String),
+      completionNote: json['completionNote'] as String?,
     );
 
 Map<String, dynamic> _$$DailyTaskImplToJson(_$DailyTaskImpl instance) =>
@@ -38,6 +39,7 @@ Map<String, dynamic> _$$DailyTaskImplToJson(_$DailyTaskImpl instance) =>
       'reminderTime': instance.reminderTime?.toIso8601String(),
       'priority': _$PriorityEnumMap[instance.priority]!,
       'createdAt': instance.createdAt.toIso8601String(),
+      'completionNote': instance.completionNote,
     };
 
 const _$PriorityEnumMap = {

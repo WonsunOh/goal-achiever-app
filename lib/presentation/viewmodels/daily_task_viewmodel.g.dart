@@ -147,7 +147,7 @@ class _TasksByGoalIdProviderElement
   String get goalId => (origin as TasksByGoalIdProvider).goalId;
 }
 
-String _$todayTasksHash() => r'ce99fd6a8146288de1b1013531b61e7d6d7bf8fd';
+String _$todayTasksHash() => r'903aad9c2ae814432f79f3c6271a3d394b286b9b';
 
 /// See also [todayTasks].
 @ProviderFor(todayTasks)
@@ -164,7 +164,7 @@ final todayTasksProvider = AutoDisposeStreamProvider<List<DailyTask>>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef TodayTasksRef = AutoDisposeStreamProviderRef<List<DailyTask>>;
-String _$taskStatisticsHash() => r'f6905c5a7e0c5005641c58d4c37bcecfbd84a19d';
+String _$taskStatisticsHash() => r'130fb09891c3127db96670a0eb86337019c6de6f';
 
 /// See also [taskStatistics].
 @ProviderFor(taskStatistics)
@@ -183,7 +183,7 @@ final taskStatisticsProvider =
 // ignore: unused_element
 typedef TaskStatisticsRef = AutoDisposeFutureProviderRef<TaskStatistics>;
 String _$dailyTaskViewModelHash() =>
-    r'8d40cec8ea7c82470394de82162fa39d3d62ad82';
+    r'82e23961ec0ae41562ceecc31f048c6d88330fad';
 
 abstract class _$DailyTaskViewModel
     extends BuildlessAutoDisposeStreamNotifier<List<DailyTask>> {

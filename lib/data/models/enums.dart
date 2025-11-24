@@ -17,6 +17,7 @@ enum Priority {
 
 enum GoalCategory {
   health,
+  exercise,
   learning,
   finance,
   hobby,
@@ -28,6 +29,8 @@ enum GoalCategory {
     switch (this) {
       case GoalCategory.health:
         return '건강';
+      case GoalCategory.exercise:
+        return '운동';
       case GoalCategory.learning:
         return '학습';
       case GoalCategory.finance:
@@ -47,6 +50,8 @@ enum GoalCategory {
     switch (this) {
       case GoalCategory.health:
         return '💪';
+      case GoalCategory.exercise:
+        return '🏃';
       case GoalCategory.learning:
         return '📚';
       case GoalCategory.finance:

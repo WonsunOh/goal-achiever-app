@@ -30,6 +30,10 @@ mixin _$Goal {
   bool get isCompleted => throw _privateConstructorUsedError;
   double get progress => throw _privateConstructorUsedError;
   String get motivationQuote => throw _privateConstructorUsedError;
+  List<int> get recurringDays =>
+      throw _privateConstructorUsedError; // 1=월, 2=화, ..., 7=일
+  DateTime? get reminderTime =>
+      throw _privateConstructorUsedError; // 알림 시간 (시:분만 사용)
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get completedAt => throw _privateConstructorUsedError;
 
@@ -57,6 +61,8 @@ abstract class $GoalCopyWith<$Res> {
     bool isCompleted,
     double progress,
     String motivationQuote,
+    List<int> recurringDays,
+    DateTime? reminderTime,
     DateTime createdAt,
     DateTime? completedAt,
   });
@@ -86,6 +92,8 @@ class _$GoalCopyWithImpl<$Res, $Val extends Goal>
     Object? isCompleted = null,
     Object? progress = null,
     Object? motivationQuote = null,
+    Object? recurringDays = null,
+    Object? reminderTime = freezed,
     Object? createdAt = null,
     Object? completedAt = freezed,
   }) {
@@ -127,6 +135,14 @@ class _$GoalCopyWithImpl<$Res, $Val extends Goal>
                 ? _value.motivationQuote
                 : motivationQuote // ignore: cast_nullable_to_non_nullable
                       as String,
+            recurringDays: null == recurringDays
+                ? _value.recurringDays
+                : recurringDays // ignore: cast_nullable_to_non_nullable
+                      as List<int>,
+            reminderTime: freezed == reminderTime
+                ? _value.reminderTime
+                : reminderTime // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -159,6 +175,8 @@ abstract class _$$GoalImplCopyWith<$Res> implements $GoalCopyWith<$Res> {
     bool isCompleted,
     double progress,
     String motivationQuote,
+    List<int> recurringDays,
+    DateTime? reminderTime,
     DateTime createdAt,
     DateTime? completedAt,
   });
@@ -185,6 +203,8 @@ class __$$GoalImplCopyWithImpl<$Res>
     Object? isCompleted = null,
     Object? progress = null,
     Object? motivationQuote = null,
+    Object? recurringDays = null,
+    Object? reminderTime = freezed,
     Object? createdAt = null,
     Object? completedAt = freezed,
   }) {
@@ -226,6 +246,14 @@ class __$$GoalImplCopyWithImpl<$Res>
             ? _value.motivationQuote
             : motivationQuote // ignore: cast_nullable_to_non_nullable
                   as String,
+        recurringDays: null == recurringDays
+            ? _value._recurringDays
+            : recurringDays // ignore: cast_nullable_to_non_nullable
+                  as List<int>,
+        reminderTime: freezed == reminderTime
+            ? _value.reminderTime
+            : reminderTime // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -252,9 +280,11 @@ class _$GoalImpl implements _Goal {
     this.isCompleted = false,
     this.progress = 0.0,
     this.motivationQuote = '',
+    final List<int> recurringDays = const <int>[],
+    this.reminderTime,
     required this.createdAt,
     this.completedAt,
-  });
+  }) : _recurringDays = recurringDays;
 
   factory _$GoalImpl.fromJson(Map<String, dynamic> json) =>
       _$$GoalImplFromJson(json);
@@ -280,6 +310,19 @@ class _$GoalImpl implements _Goal {
   @override
   @JsonKey()
   final String motivationQuote;
+  final List<int> _recurringDays;
+  @override
+  @JsonKey()
+  List<int> get recurringDays {
+    if (_recurringDays is EqualUnmodifiableListView) return _recurringDays;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_recurringDays);
+  }
+
+  // 1=월, 2=화, ..., 7=일
+  @override
+  final DateTime? reminderTime;
+  // 알림 시간 (시:분만 사용)
   @override
   final DateTime createdAt;
   @override
@@ -287,7 +330,7 @@ class _$GoalImpl implements _Goal {
 
   @override
   String toString() {
-    return 'Goal(id: $id, title: $title, description: $description, category: $category, startDate: $startDate, targetDate: $targetDate, isCompleted: $isCompleted, progress: $progress, motivationQuote: $motivationQuote, createdAt: $createdAt, completedAt: $completedAt)';
+    return 'Goal(id: $id, title: $title, description: $description, category: $category, startDate: $startDate, targetDate: $targetDate, isCompleted: $isCompleted, progress: $progress, motivationQuote: $motivationQuote, recurringDays: $recurringDays, reminderTime: $reminderTime, createdAt: $createdAt, completedAt: $completedAt)';
   }
 
   @override
@@ -311,6 +354,12 @@ class _$GoalImpl implements _Goal {
                 other.progress == progress) &&
             (identical(other.motivationQuote, motivationQuote) ||
                 other.motivationQuote == motivationQuote) &&
+            const DeepCollectionEquality().equals(
+              other._recurringDays,
+              _recurringDays,
+            ) &&
+            (identical(other.reminderTime, reminderTime) ||
+                other.reminderTime == reminderTime) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.completedAt, completedAt) ||
@@ -330,6 +379,8 @@ class _$GoalImpl implements _Goal {
     isCompleted,
     progress,
     motivationQuote,
+    const DeepCollectionEquality().hash(_recurringDays),
+    reminderTime,
     createdAt,
     completedAt,
   );
@@ -359,6 +410,8 @@ abstract class _Goal implements Goal {
     final bool isCompleted,
     final double progress,
     final String motivationQuote,
+    final List<int> recurringDays,
+    final DateTime? reminderTime,
     required final DateTime createdAt,
     final DateTime? completedAt,
   }) = _$GoalImpl;
@@ -383,6 +436,10 @@ abstract class _Goal implements Goal {
   double get progress;
   @override
   String get motivationQuote;
+  @override
+  List<int> get recurringDays; // 1=월, 2=화, ..., 7=일
+  @override
+  DateTime? get reminderTime; // 알림 시간 (시:분만 사용)
   @override
   DateTime get createdAt;
   @override

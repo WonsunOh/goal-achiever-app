@@ -192,8 +192,15 @@ class _EditTaskDialogState extends ConsumerState<EditTaskDialog> {
           reminderTime: reminderDateTime,
         );
 
+        // 날짜 정규화 (시/분/초 제거) - provider key 일치를 위해
+        final normalizedDate = DateTime(
+          widget.task.scheduledDate.year,
+          widget.task.scheduledDate.month,
+          widget.task.scheduledDate.day,
+        );
+
         await ref
-            .read(dailyTaskViewModelProvider(widget.task.scheduledDate).notifier)
+            .read(dailyTaskViewModelProvider(normalizedDate).notifier)
             .updateTask(updatedTask);
 
         if (mounted) {

@@ -80,6 +80,7 @@ class GoalsView extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'goals_fab',
         onPressed: () {
           showDialog(
             context: context,

@@ -15,10 +15,10 @@ NotificationService notificationService(NotificationServiceRef ref) {
   return NotificationService();
 }
 
-@riverpod
-BadgeService badgeService(BadgeServiceRef ref) {
+@Riverpod(keepAlive: true)
+Future<BadgeService> badgeService(BadgeServiceRef ref) async {
   final service = BadgeService();
-  service.initialize();
+  await service.initialize();
   return service;
 }
 

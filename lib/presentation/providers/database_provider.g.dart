@@ -25,11 +25,11 @@ final notificationServiceProvider =
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef NotificationServiceRef = AutoDisposeProviderRef<NotificationService>;
-String _$badgeServiceHash() => r'84399f7d6c4bf4915546788a62ea0719428f5940';
+String _$badgeServiceHash() => r'5c370f32e8883fc7205f7cddcb87a8843048b545';
 
 /// See also [badgeService].
 @ProviderFor(badgeService)
-final badgeServiceProvider = AutoDisposeProvider<BadgeService>.internal(
+final badgeServiceProvider = FutureProvider<BadgeService>.internal(
   badgeService,
   name: r'badgeServiceProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -41,7 +41,7 @@ final badgeServiceProvider = AutoDisposeProvider<BadgeService>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef BadgeServiceRef = AutoDisposeProviderRef<BadgeService>;
+typedef BadgeServiceRef = FutureProviderRef<BadgeService>;
 String _$motivationServiceHash() => r'04a4ee9dac24dfac95a35a8ece256dfc091922fe';
 
 /// See also [motivationService].

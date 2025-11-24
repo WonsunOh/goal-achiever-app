@@ -6,7 +6,10 @@ import '../viewmodels/daily_task_viewmodel.dart';
 import '../widgets/task_item.dart';
 import '../widgets/create_task_dialog.dart';
 
-final selectedDateProvider = StateProvider<DateTime>((ref) => DateTime.now());
+final selectedDateProvider = StateProvider<DateTime>((ref) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day);
+});
 
 class TasksView extends ConsumerWidget {
   const TasksView({super.key});
@@ -68,8 +71,9 @@ class TasksView extends ConsumerWidget {
                       const SizedBox(height: 12),
                       ...incompleteTasks.map(
                         (task) => Padding(
+                          key: ValueKey('incomplete_${task.id}'),
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: TaskItem(task: task),
+                          child: TaskItem(key: ValueKey(task.id), task: task),
                         ),
                       ),
                     ],
@@ -82,8 +86,9 @@ class TasksView extends ConsumerWidget {
                       const SizedBox(height: 12),
                       ...completedTasks.map(
                         (task) => Padding(
+                          key: ValueKey('completed_${task.id}'),
                           padding: const EdgeInsets.only(bottom: 8),
-                          child: TaskItem(task: task),
+                          child: TaskItem(key: ValueKey(task.id), task: task),
                         ),
                       ),
                     ],
@@ -99,6 +104,7 @@ class TasksView extends ConsumerWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'tasks_fab',
         onPressed: () {
           showDialog(
             context: context,
@@ -122,7 +128,12 @@ class TasksView extends ConsumerWidget {
       focusedDay: selectedDate,
       selectedDayPredicate: (day) => isSameDay(selectedDate, day),
       onDaySelected: (selectedDay, focusedDay) {
-        ref.read(selectedDateProvider.notifier).state = selectedDay;
+        // 날짜 정규화 (시/분/초 제거)
+        ref.read(selectedDateProvider.notifier).state = DateTime(
+          selectedDay.year,
+          selectedDay.month,
+          selectedDay.day,
+        );
       },
       calendarFormat: CalendarFormat.week,
       headerStyle: const HeaderStyle(

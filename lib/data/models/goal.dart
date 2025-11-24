@@ -16,6 +16,8 @@ class Goal with _$Goal {
     @Default(false) bool isCompleted,
     @Default(0.0) double progress,
     @Default('') String motivationQuote,
+    @Default(<int>[]) List<int> recurringDays, // 1=월, 2=화, ..., 7=일
+    DateTime? reminderTime, // 알림 시간 (시:분만 사용)
     required DateTime createdAt,
     DateTime? completedAt,
   }) = _Goal;

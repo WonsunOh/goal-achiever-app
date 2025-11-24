@@ -18,6 +18,8 @@ class Goals extends Table {
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   RealColumn get progress => real().withDefault(const Constant(0.0))();
   TextColumn get motivationQuote => text().withDefault(const Constant(''))();
+  TextColumn get recurringDays => text().withDefault(const Constant(''))(); // 콤마로 구분된 요일 (1-7)
+  DateTimeColumn get reminderTime => dateTime().nullable()(); // 알림 시간
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get completedAt => dateTime().nullable()();
 
@@ -37,6 +39,7 @@ class DailyTasks extends Table {
   DateTimeColumn get reminderTime => dateTime().nullable()();
   IntColumn get priority => intEnum<Priority>().withDefault(const Constant(1))();
   DateTimeColumn get createdAt => dateTime()();
+  TextColumn get completionNote => text().nullable()(); // 완료 시 메모/소감
 
   @override
   Set<Column> get primaryKey => {id};
@@ -71,7 +74,30 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 4;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from < 2) {
+          // recurringDays 컬럼 추가
+          await m.addColumn(goals, goals.recurringDays);
+        }
+        if (from < 3) {
+          // reminderTime 컬럼 추가
+          await m.addColumn(goals, goals.reminderTime);
+        }
+        if (from < 4) {
+          // completionNote 컬럼 추가
+          await m.addColumn(dailyTasks, dailyTasks.completionNote);
+        }
+      },
+    );
+  }
 
   // Goals CRUD
   Future<List<Goal>> getAllGoals() => select(goals).get();
@@ -127,6 +153,11 @@ class AppDatabase extends _$AppDatabase {
     return (delete(dailyTasks)..where((tbl) => tbl.id.equals(id))).go();
   }
 
+  /// goalId에 해당하는 모든 할일 삭제
+  Future<int> deleteTasksByGoalId(String goalId) {
+    return (delete(dailyTasks)..where((tbl) => tbl.goalId.equals(goalId))).go();
+  }
+
   // Achievements CRUD
   Future<List<Achievement>> getAllAchievements() => select(achievements).get();
 
@@ -140,6 +171,11 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteAchievement(String id) {
     return (delete(achievements)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  /// goalId에 해당하는 모든 성취 삭제
+  Future<int> deleteAchievementsByGoalId(String goalId) {
+    return (delete(achievements)..where((tbl) => tbl.goalId.equals(goalId))).go();
   }
 
   // MotivationMessages CRUD
@@ -158,6 +194,14 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteMotivationMessage(String id) {
     return (delete(motivationMessages)..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  /// 모든 데이터 삭제
+  Future<void> deleteAllData() async {
+    await delete(dailyTasks).go();
+    await delete(achievements).go();
+    await delete(goals).go();
+    await delete(motivationMessages).go();
   }
 }
 

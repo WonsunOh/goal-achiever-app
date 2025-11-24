@@ -357,6 +357,8 @@ class GoalDetailView extends ConsumerWidget {
     switch (category) {
       case GoalCategory.health:
         return AppColors.healthColor;
+      case GoalCategory.exercise:
+        return AppColors.exerciseColor;
       case GoalCategory.learning:
         return AppColors.learningColor;
       case GoalCategory.finance:

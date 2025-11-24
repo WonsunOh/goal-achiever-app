@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/database_provider.dart';
+import '../viewmodels/daily_task_viewmodel.dart';
+import '../viewmodels/goal_viewmodel.dart';
+import 'achievements_view.dart';
 
 // Providers for settings
 final dailyReminderEnabledProvider = StateProvider<bool>((ref) => false);
@@ -152,24 +155,38 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   void _showDeleteAllDataDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('모든 데이터 삭제'),
         content: const Text(
             '정말로 모든 목표와 할일을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('취소'),
           ),
           TextButton(
             onPressed: () async {
-              // Delete all data
+              // Delete all data from database
               final database = ref.read(appDatabaseProvider);
-              // This would need a deleteAll method in database
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('모든 데이터가 삭제되었습니다')),
-              );
+              await database.deleteAllData();
+
+              // Delete all badge data
+              final badgeService = await ref.read(badgeServiceProvider.future);
+              await badgeService.resetAllData();
+
+              // Invalidate all related providers to refresh UI
+              ref.invalidate(allBadgesProvider);
+              ref.invalidate(badgeServiceProvider);
+              ref.invalidate(taskStatisticsProvider);
+              ref.invalidate(todayTasksProvider);
+              ref.invalidate(goalViewModelProvider);
+
+              if (mounted) {
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('모든 데이터가 삭제되었습니다')),
+                );
+              }
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.error),
             child: const Text('삭제'),

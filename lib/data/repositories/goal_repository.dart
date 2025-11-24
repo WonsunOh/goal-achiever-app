@@ -58,6 +58,8 @@ class GoalRepository {
       isCompleted: dbGoal.isCompleted,
       progress: dbGoal.progress,
       motivationQuote: dbGoal.motivationQuote,
+      recurringDays: _parseRecurringDays(dbGoal.recurringDays),
+      reminderTime: dbGoal.reminderTime,
       createdAt: dbGoal.createdAt,
       completedAt: dbGoal.completedAt,
     );
@@ -74,8 +76,21 @@ class GoalRepository {
       isCompleted: Value(goal.isCompleted),
       progress: Value(goal.progress),
       motivationQuote: Value(goal.motivationQuote),
+      recurringDays: Value(_serializeRecurringDays(goal.recurringDays)),
+      reminderTime: Value(goal.reminderTime),
       createdAt: Value(goal.createdAt),
       completedAt: Value(goal.completedAt),
     );
+  }
+
+  /// 콤마로 구분된 문자열을 List<int>로 변환
+  List<int> _parseRecurringDays(String days) {
+    if (days.isEmpty) return [];
+    return days.split(',').map((d) => int.tryParse(d.trim()) ?? 0).where((d) => d > 0).toList();
+  }
+
+  /// List<int>를 콤마로 구분된 문자열로 변환
+  String _serializeRecurringDays(List<int> days) {
+    return days.join(',');
   }
 }

@@ -335,6 +335,8 @@ class CategoryPieChart extends StatelessWidget {
     switch (category) {
       case GoalCategory.health:
         return Colors.red;
+      case GoalCategory.exercise:
+        return Colors.teal;
       case GoalCategory.learning:
         return Colors.blue;
       case GoalCategory.finance:
@@ -378,34 +380,38 @@ class WeekdayDistributionChart extends StatelessWidget {
           final value = distribution[weekday] ?? 0;
           final heightRatio = maxValue > 0 ? value / maxValue : 0.0;
 
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                '$value',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+          return Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text(
+                  '$value',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                width: 32,
-                height: (height - 50) * heightRatio,
-                decoration: BoxDecoration(
-                  color: weekday == 6 || weekday == 7
-                      ? AppColors.primaryLight.withValues(alpha: 0.7)
-                      : AppColors.primary,
-                  borderRadius: BorderRadius.circular(4),
+                const SizedBox(height: 2),
+                Flexible(
+                  child: Container(
+                    width: 28,
+                    height: (height - 70) * heightRatio,
+                    decoration: BoxDecoration(
+                      color: weekday == 6 || weekday == 7
+                          ? AppColors.primaryLight.withValues(alpha: 0.7)
+                          : AppColors.primary,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                StatisticsService.getWeekdayName(weekday),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                const SizedBox(height: 4),
+                Text(
+                  StatisticsService.getWeekdayName(weekday),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         }),
       ),
@@ -515,11 +521,14 @@ class StatSummaryCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: color, size: 20),
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],

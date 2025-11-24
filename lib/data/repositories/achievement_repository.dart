@@ -25,6 +25,11 @@ class AchievementRepository {
     await _database.deleteAchievement(id);
   }
 
+  /// goalId에 해당하는 모든 성취 삭제
+  Future<void> deleteAchievementsByGoalId(String goalId) async {
+    await _database.deleteAchievementsByGoalId(goalId);
+  }
+
   model.Achievement _mapToModel(Achievement dbAchievement) {
     return model.Achievement(
       id: dbAchievement.id,

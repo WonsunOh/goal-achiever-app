@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub get:*)",
+      "Bash(tree:*)",
+      "Bash(dart run build_runner build:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(flutter build:*)",
+      "Bash(git init:*)",
+      "Bash(nul)",
+      "Bash(git add:*)",
+      "Bash(git reset:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Goal Achiever App\n\nFeatures implemented:\n- Goal management (CRUD with categories)\n- Daily task management with reminders\n- Notification system (local notifications)\n- Progress tracking and auto-calculation\n- Achievement/Badge system (24 badges)\n- Motivation messages and celebration animations\n- Statistics dashboard with charts\n- Calendar heatmap\n\nTech stack:\n- Flutter with Riverpod state management\n- MVVM architecture pattern\n- Drift (SQLite) for local storage\n- fl_chart for data visualization\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(gh auth status:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(flutter pub add:*)",
+      "Bash(\"C:\\gain_goal2\\lib\\presentation\\widgets\\celebration_overlay.dart\")",
+      "Bash(echo:*)",
+      "Bash(curl:*)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter pub run build_runner:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

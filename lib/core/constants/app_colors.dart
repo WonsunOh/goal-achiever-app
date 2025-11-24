@@ -13,6 +13,7 @@ class AppColors {
 
   // Category Colors
   static const Color healthColor = Color(0xFFEF4444); // Red
+  static const Color exerciseColor = Color(0xFF14B8A6); // Teal
   static const Color learningColor = Color(0xFF3B82F6); // Blue
   static const Color financeColor = Color(0xFF10B981); // Green
   static const Color hobbyColor = Color(0xFFF59E0B); // Amber

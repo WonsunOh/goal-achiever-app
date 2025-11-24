@@ -16,6 +16,14 @@ _$GoalImpl _$$GoalImplFromJson(Map<String, dynamic> json) => _$GoalImpl(
   isCompleted: json['isCompleted'] as bool? ?? false,
   progress: (json['progress'] as num?)?.toDouble() ?? 0.0,
   motivationQuote: json['motivationQuote'] as String? ?? '',
+  recurringDays:
+      (json['recurringDays'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList() ??
+      const <int>[],
+  reminderTime: json['reminderTime'] == null
+      ? null
+      : DateTime.parse(json['reminderTime'] as String),
   createdAt: DateTime.parse(json['createdAt'] as String),
   completedAt: json['completedAt'] == null
       ? null
@@ -33,12 +41,15 @@ Map<String, dynamic> _$$GoalImplToJson(_$GoalImpl instance) =>
       'isCompleted': instance.isCompleted,
       'progress': instance.progress,
       'motivationQuote': instance.motivationQuote,
+      'recurringDays': instance.recurringDays,
+      'reminderTime': instance.reminderTime?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'completedAt': instance.completedAt?.toIso8601String(),
     };
 
 const _$GoalCategoryEnumMap = {
   GoalCategory.health: 'health',
+  GoalCategory.exercise: 'exercise',
   GoalCategory.learning: 'learning',
   GoalCategory.finance: 'finance',
   GoalCategory.hobby: 'hobby',

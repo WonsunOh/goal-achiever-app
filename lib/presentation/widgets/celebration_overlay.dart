@@ -1,211 +1,175 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
+import 'package:confetti/confetti.dart';
+import 'package:vibration/vibration.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-class CelebrationOverlay extends StatefulWidget {
-  final String title;
+class CelebrationDialog extends StatefulWidget {
   final String message;
-  final IconData icon;
-  final Color iconColor;
-  final VoidCallback onDismiss;
-  final bool showConfetti;
 
-  const CelebrationOverlay({
+  const CelebrationDialog({
     super.key,
-    required this.title,
-    required this.message,
-    required this.onDismiss,
-    this.icon = Icons.celebration,
-    this.iconColor = Colors.amber,
-    this.showConfetti = true,
+    this.message = '잘했어요!',
   });
 
   @override
-  State<CelebrationOverlay> createState() => _CelebrationOverlayState();
+  State<CelebrationDialog> createState() => _CelebrationDialogState();
 }
 
-class _CelebrationOverlayState extends State<CelebrationOverlay>
-    with TickerProviderStateMixin {
-  late AnimationController _scaleController;
-  late AnimationController _confettiController;
+class _CelebrationDialogState extends State<CelebrationDialog>
+    with SingleTickerProviderStateMixin {
+  late ConfettiController _confettiController;
+  late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _fadeAnimation;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-  final List<ConfettiParticle> _particles = [];
-  final Random _random = Random();
+  final List<String> _celebrationEmojis = ['🎉', '🎊', '✨', '🌟', '💪', '👏', '🏆'];
 
   @override
   void initState() {
     super.initState();
 
-    // Scale animation for the card
-    _scaleController = AnimationController(
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 2),
+    );
+
+    _animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
-    _scaleAnimation = CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticOut,
+      ),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeIn,
-    );
-
-    // Confetti animation
-    _confettiController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    if (widget.showConfetti) {
-      _generateConfetti();
-      _confettiController.repeat();
-    }
-
-    _scaleController.forward();
+    _startCelebration();
   }
 
-  void _generateConfetti() {
-    final colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.green,
-      Colors.yellow,
-      Colors.purple,
-      Colors.orange,
-      Colors.pink,
-      Colors.cyan,
-    ];
-
-    for (int i = 0; i < 50; i++) {
-      _particles.add(ConfettiParticle(
-        x: _random.nextDouble(),
-        y: _random.nextDouble() * -1,
-        color: colors[_random.nextInt(colors.length)],
-        size: _random.nextDouble() * 8 + 4,
-        speed: _random.nextDouble() * 2 + 1,
-        rotation: _random.nextDouble() * 360,
-        rotationSpeed: _random.nextDouble() * 10 - 5,
-      ));
+  Future<void> _startCelebration() async {
+    // 진동 패턴 (팡파레 느낌)
+    try {
+      final hasVibrator = await Vibration.hasVibrator() ?? false;
+      if (hasVibrator) {
+        // 짧은 진동 3번 (축하 느낌)
+        Vibration.vibrate(pattern: [0, 100, 100, 100, 100, 200], intensities: [0, 255, 0, 255, 0, 255]);
+      }
+    } catch (e) {
+      debugPrint('Vibration error: $e');
     }
+
+    // 팡파레 소리 재생
+    try {
+      await _audioPlayer.play(AssetSource('sounds/fanfare.mp3'));
+    } catch (e) {
+      debugPrint('Sound error: $e');
+    }
+
+    // 컨페티 시작
+    _confettiController.play();
+
+    // 애니메이션 시작
+    _animationController.forward();
+
+    // 2.5초 후 자동 종료
+    Timer(const Duration(milliseconds: 2500), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    });
   }
 
   @override
   void dispose() {
-    _scaleController.dispose();
     _confettiController.dispose();
+    _animationController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
+  }
+
+  String get _randomEmoji {
+    return _celebrationEmojis[Random().nextInt(_celebrationEmojis.length)];
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       child: Stack(
+        alignment: Alignment.center,
         children: [
-          // Background overlay
-          GestureDetector(
-            onTap: widget.onDismiss,
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Container(
-                color: Colors.black54,
-              ),
+          // 컨페티 - 중앙에서 발사
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              shouldLoop: false,
+              colors: const [
+                Colors.red,
+                Colors.orange,
+                Colors.yellow,
+                Colors.green,
+                Colors.blue,
+                Colors.purple,
+                Colors.pink,
+              ],
+              numberOfParticles: 20,
+              maxBlastForce: 40,
+              minBlastForce: 15,
+              emissionFrequency: 0.08,
+              gravity: 0.3,
             ),
           ),
 
-          // Confetti
-          if (widget.showConfetti)
-            AnimatedBuilder(
-              animation: _confettiController,
-              builder: (context, child) {
-                return CustomPaint(
-                  size: MediaQuery.of(context).size,
-                  painter: ConfettiPainter(
-                    particles: _particles,
-                    progress: _confettiController.value,
-                  ),
-                );
-              },
-            ),
-
-          // Celebration card
-          Center(
-            child: ScaleTransition(
-              scale: _scaleAnimation,
+          // 축하 메시지 카드
+          ScaleTransition(
+            scale: _scaleAnimation,
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
               child: Container(
-                margin: const EdgeInsets.all(32),
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 24,
+                ),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(24),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: widget.iconColor.withValues(alpha: 0.3),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 20,
-                      spreadRadius: 5,
+                      offset: const Offset(0, 10),
                     ),
                   ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Animated icon
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0, end: 1),
-                      duration: const Duration(milliseconds: 800),
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: 0.5 + (value * 0.5),
-                          child: Transform.rotate(
-                            angle: (1 - value) * 0.5,
-                            child: Icon(
-                              widget.icon,
-                              size: 80,
-                              color: widget.iconColor,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Title
                     Text(
-                      widget.title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      _randomEmoji,
+                      style: const TextStyle(fontSize: 50),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.message,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-
-                    // Message
                     Text(
-                      widget.message,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      '목표 달성을 향해 한 걸음 더!',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
                       textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Close button
-                    ElevatedButton(
-                      onPressed: widget.onDismiss,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
-                      child: const Text('확인'),
                     ),
                   ],
                 ),
@@ -218,153 +182,14 @@ class _CelebrationOverlayState extends State<CelebrationOverlay>
   }
 }
 
-class ConfettiParticle {
-  double x;
-  double y;
-  final Color color;
-  final double size;
-  final double speed;
-  double rotation;
-  final double rotationSpeed;
-
-  ConfettiParticle({
-    required this.x,
-    required this.y,
-    required this.color,
-    required this.size,
-    required this.speed,
-    required this.rotation,
-    required this.rotationSpeed,
-  });
-}
-
-class ConfettiPainter extends CustomPainter {
-  final List<ConfettiParticle> particles;
-  final double progress;
-
-  ConfettiPainter({
-    required this.particles,
-    required this.progress,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (var particle in particles) {
-      final y = (particle.y + progress * particle.speed * 2) % 1.5 - 0.5;
-      final x = particle.x + sin(progress * 10 + particle.rotation) * 0.05;
-
-      final paint = Paint()
-        ..color = particle.color
-        ..style = PaintingStyle.fill;
-
-      canvas.save();
-      canvas.translate(x * size.width, y * size.height);
-      canvas.rotate((particle.rotation + progress * particle.rotationSpeed * 20) * pi / 180);
-
-      // Draw confetti shape (rectangle)
-      canvas.drawRect(
-        Rect.fromCenter(
-          center: Offset.zero,
-          width: particle.size,
-          height: particle.size * 0.6,
-        ),
-        paint,
-      );
-
-      canvas.restore();
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant ConfettiPainter oldDelegate) {
-    return oldDelegate.progress != progress;
-  }
-}
-
-// Badge unlock celebration
-class BadgeUnlockOverlay extends StatelessWidget {
-  final String badgeName;
-  final String badgeDescription;
-  final IconData badgeIcon;
-  final Color badgeColor;
-  final VoidCallback onDismiss;
-
-  const BadgeUnlockOverlay({
-    super.key,
-    required this.badgeName,
-    required this.badgeDescription,
-    required this.badgeIcon,
-    required this.badgeColor,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CelebrationOverlay(
-      title: '배지 획득!',
-      message: '$badgeName\n$badgeDescription',
-      icon: badgeIcon,
-      iconColor: badgeColor,
-      onDismiss: onDismiss,
-      showConfetti: true,
-    );
-  }
-}
-
-// Goal completion celebration
-class GoalCompletionOverlay extends StatelessWidget {
-  final String goalTitle;
-  final VoidCallback onDismiss;
-
-  const GoalCompletionOverlay({
-    super.key,
-    required this.goalTitle,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CelebrationOverlay(
-      title: '목표 달성!',
-      message: '"$goalTitle"\n목표를 달성했습니다!\n축하합니다!',
-      icon: Icons.emoji_events,
-      iconColor: Colors.amber,
-      onDismiss: onDismiss,
-      showConfetti: true,
-    );
-  }
-}
-
-// Streak celebration
-class StreakCelebrationOverlay extends StatelessWidget {
-  final int streakDays;
-  final VoidCallback onDismiss;
-
-  const StreakCelebrationOverlay({
-    super.key,
-    required this.streakDays,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CelebrationOverlay(
-      title: '$streakDays일 연속 달성!',
-      message: '대단해요!\n$streakDays일 동안 꾸준히 목표를 향해\n나아가고 있어요!',
-      icon: Icons.local_fire_department,
-      iconColor: Colors.deepOrange,
-      onDismiss: onDismiss,
-      showConfetti: true,
-    );
-  }
-}
-
-// Helper function to show celebration
-void showCelebration(BuildContext context, Widget overlay) {
-  showDialog(
+/// 축하 다이얼로그를 표시하는 함수
+Future<void> showCelebration(BuildContext context, {String? message}) {
+  return showDialog(
     context: context,
-    barrierDismissible: false,
-    barrierColor: Colors.transparent,
-    builder: (context) => overlay,
+    barrierDismissible: true,
+    barrierColor: Colors.black38,
+    builder: (context) => CelebrationDialog(
+      message: message ?? '잘했어요!',
+    ),
   );
 }

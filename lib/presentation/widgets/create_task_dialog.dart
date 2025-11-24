@@ -229,13 +229,20 @@ class _CreateTaskDialogState extends ConsumerState<CreateTaskDialog> {
           );
         }
 
+        // 날짜 정규화 (시/분/초 제거) - provider key 일치를 위해
+        final normalizedDate = DateTime(
+          widget.selectedDate.year,
+          widget.selectedDate.month,
+          widget.selectedDate.day,
+        );
+
         await ref
-            .read(dailyTaskViewModelProvider(widget.selectedDate).notifier)
+            .read(dailyTaskViewModelProvider(normalizedDate).notifier)
             .createTask(
               goalId: _selectedGoalId!,
               title: _titleController.text,
               description: _descriptionController.text,
-              scheduledDate: widget.selectedDate,
+              scheduledDate: normalizedDate,
               reminderTime: reminderDateTime,
               priority: _selectedPriority,
             );

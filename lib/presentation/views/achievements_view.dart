@@ -2,26 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/models/badge.dart' as app_badge;
-import '../../services/badge_service.dart';
+import '../providers/database_provider.dart';
 
-// Badge service provider
-final badgeServiceProvider = Provider<BadgeService>((ref) {
-  final service = BadgeService();
-  service.initialize();
-  return service;
-});
-
-// All badges provider
+// All badges provider - database_provider의 badgeService 사용
 final allBadgesProvider = FutureProvider<List<app_badge.Badge>>((ref) async {
-  final service = ref.watch(badgeServiceProvider);
-  await service.initialize();
+  final service = await ref.watch(badgeServiceProvider.future);
   return service.getAllBadgesWithStatus();
-});
-
-// Badge progress provider
-final badgeProgressProvider = Provider<double>((ref) {
-  final service = ref.watch(badgeServiceProvider);
-  return service.getProgress();
 });
 
 class AchievementsView extends ConsumerWidget {
@@ -246,9 +232,10 @@ class _BadgeItem extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showBadgeDetails(context),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: badge.isUnlocked
                   ? badge.color.withValues(alpha: 0.2)
@@ -271,19 +258,22 @@ class _BadgeItem extends StatelessWidget {
             child: Icon(
               badge.icon,
               color: badge.isUnlocked ? badge.color : Colors.grey.shade400,
-              size: 28,
+              size: 24,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            badge.name,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: badge.isUnlocked ? null : Colors.grey,
-                  fontWeight: badge.isUnlocked ? FontWeight.w500 : null,
-                ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          const SizedBox(height: 2),
+          Flexible(
+            child: Text(
+              badge.name,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: badge.isUnlocked ? null : Colors.grey,
+                    fontWeight: badge.isUnlocked ? FontWeight.w500 : null,
+                    fontSize: 11,
+                  ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

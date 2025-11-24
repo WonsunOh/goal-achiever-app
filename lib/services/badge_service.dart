@@ -52,6 +52,29 @@ class BadgeService {
     await prefs.setStringList(_unlockedBadgesKey, _unlockedBadgeIds.toList());
   }
 
+  /// 모든 배지 및 통계 데이터 초기화
+  Future<void> resetAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // SharedPreferences에서 삭제
+    await prefs.remove(_unlockedBadgesKey);
+    await prefs.remove(_statsKey);
+
+    // 메모리 데이터 초기화
+    _unlockedBadgeIds.clear();
+    _stats = {
+      'totalGoalsCreated': 0,
+      'totalGoalsCompleted': 0,
+      'totalTasksCompleted': 0,
+      'currentStreak': 0,
+      'maxStreak': 0,
+      'earlyBirdCount': 0,
+      'nightOwlCount': 0,
+      'perfectWeeks': 0,
+      'perfectMonths': 0,
+    };
+  }
+
   // 배지 해금
   Future<Badge?> unlockBadge(BadgeType type) async {
     final badge = BadgeDefinitions.getBadgeByType(type);

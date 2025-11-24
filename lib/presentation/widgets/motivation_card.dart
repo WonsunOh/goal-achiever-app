@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../services/motivation_service.dart';
@@ -23,6 +24,10 @@ class _MotivationCardState extends State<MotivationCard>
   late MotivationMessage _currentMessage;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  Timer? _autoRefreshTimer;
+
+  // 자동 변경 간격 (10초)
+  static const Duration _autoRefreshInterval = Duration(seconds: 10);
 
   @override
   void initState() {
@@ -32,27 +37,47 @@ class _MotivationCardState extends State<MotivationCard>
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
+      value: 1.0, // 처음에 완전히 보이게 시작
     );
 
-    _fadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    // 자동 새로고침 타이머 시작
+    _startAutoRefresh();
   }
 
   @override
   void dispose() {
+    _autoRefreshTimer?.cancel();
     _animationController.dispose();
     super.dispose();
   }
 
+  void _startAutoRefresh() {
+    _autoRefreshTimer = Timer.periodic(_autoRefreshInterval, (_) {
+      if (mounted) {
+        _refreshMessage();
+      }
+    });
+  }
+
   void _refreshMessage() async {
-    await _animationController.forward();
+    // 이미 애니메이션 중이면 무시
+    if (_animationController.isAnimating) return;
+
+    // fade out
+    await _animationController.reverse();
+
+    if (!mounted) return;
 
     setState(() {
       _currentMessage = _motivationService.getRandomMessage();
     });
 
-    await _animationController.reverse();
+    // fade in
+    await _animationController.forward();
   }
 
   @override
@@ -116,7 +141,7 @@ class _MotivationCardState extends State<MotivationCard>
 
           // Quote
           FadeTransition(
-            opacity: ReverseAnimation(_fadeAnimation),
+            opacity: _fadeAnimation,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -40,6 +40,11 @@ class DailyTaskRepository {
     await _database.deleteTask(id);
   }
 
+  /// goalId에 해당하는 모든 할일 삭제
+  Future<void> deleteTasksByGoalId(String goalId) async {
+    await _database.deleteTasksByGoalId(goalId);
+  }
+
   Future<void> toggleTaskCompletion(String id) async {
     final tasks = await _database.getAllTasks();
     final task = tasks.firstWhere((t) => t.id == id);
@@ -62,6 +67,7 @@ class DailyTaskRepository {
       reminderTime: dbTask.reminderTime,
       priority: dbTask.priority,
       createdAt: dbTask.createdAt,
+      completionNote: dbTask.completionNote,
     );
   }
 
@@ -77,6 +83,7 @@ class DailyTaskRepository {
       reminderTime: Value(task.reminderTime),
       priority: Value(task.priority),
       createdAt: Value(task.createdAt),
+      completionNote: Value(task.completionNote),
     );
   }
 }

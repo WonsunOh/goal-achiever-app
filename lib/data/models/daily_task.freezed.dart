@@ -31,6 +31,7 @@ mixin _$DailyTask {
   DateTime? get reminderTime => throw _privateConstructorUsedError;
   Priority get priority => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
+  String? get completionNote => throw _privateConstructorUsedError;
 
   /// Serializes this DailyTask to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -58,6 +59,7 @@ abstract class $DailyTaskCopyWith<$Res> {
     DateTime? reminderTime,
     Priority priority,
     DateTime createdAt,
+    String? completionNote,
   });
 }
 
@@ -86,6 +88,7 @@ class _$DailyTaskCopyWithImpl<$Res, $Val extends DailyTask>
     Object? reminderTime = freezed,
     Object? priority = null,
     Object? createdAt = null,
+    Object? completionNote = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -129,6 +132,10 @@ class _$DailyTaskCopyWithImpl<$Res, $Val extends DailyTask>
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
                       as DateTime,
+            completionNote: freezed == completionNote
+                ? _value.completionNote
+                : completionNote // ignore: cast_nullable_to_non_nullable
+                      as String?,
           )
           as $Val,
     );
@@ -155,6 +162,7 @@ abstract class _$$DailyTaskImplCopyWith<$Res>
     DateTime? reminderTime,
     Priority priority,
     DateTime createdAt,
+    String? completionNote,
   });
 }
 
@@ -182,6 +190,7 @@ class __$$DailyTaskImplCopyWithImpl<$Res>
     Object? reminderTime = freezed,
     Object? priority = null,
     Object? createdAt = null,
+    Object? completionNote = freezed,
   }) {
     return _then(
       _$DailyTaskImpl(
@@ -225,6 +234,10 @@ class __$$DailyTaskImplCopyWithImpl<$Res>
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
                   as DateTime,
+        completionNote: freezed == completionNote
+            ? _value.completionNote
+            : completionNote // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -244,6 +257,7 @@ class _$DailyTaskImpl implements _DailyTask {
     this.reminderTime,
     this.priority = Priority.medium,
     required this.createdAt,
+    this.completionNote,
   });
 
   factory _$DailyTaskImpl.fromJson(Map<String, dynamic> json) =>
@@ -271,10 +285,12 @@ class _$DailyTaskImpl implements _DailyTask {
   final Priority priority;
   @override
   final DateTime createdAt;
+  @override
+  final String? completionNote;
 
   @override
   String toString() {
-    return 'DailyTask(id: $id, goalId: $goalId, title: $title, description: $description, scheduledDate: $scheduledDate, isCompleted: $isCompleted, completedAt: $completedAt, reminderTime: $reminderTime, priority: $priority, createdAt: $createdAt)';
+    return 'DailyTask(id: $id, goalId: $goalId, title: $title, description: $description, scheduledDate: $scheduledDate, isCompleted: $isCompleted, completedAt: $completedAt, reminderTime: $reminderTime, priority: $priority, createdAt: $createdAt, completionNote: $completionNote)';
   }
 
   @override
@@ -298,7 +314,9 @@ class _$DailyTaskImpl implements _DailyTask {
             (identical(other.priority, priority) ||
                 other.priority == priority) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.completionNote, completionNote) ||
+                other.completionNote == completionNote));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -315,6 +333,7 @@ class _$DailyTaskImpl implements _DailyTask {
     reminderTime,
     priority,
     createdAt,
+    completionNote,
   );
 
   /// Create a copy of DailyTask
@@ -343,6 +362,7 @@ abstract class _DailyTask implements DailyTask {
     final DateTime? reminderTime,
     final Priority priority,
     required final DateTime createdAt,
+    final String? completionNote,
   }) = _$DailyTaskImpl;
 
   factory _DailyTask.fromJson(Map<String, dynamic> json) =
@@ -368,6 +388,8 @@ abstract class _DailyTask implements DailyTask {
   Priority get priority;
   @override
   DateTime get createdAt;
+  @override
+  String? get completionNote;
 
   /// Create a copy of DailyTask
   /// with the given fields replaced by the non-null parameter values.

@@ -107,6 +107,29 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     requiredDuringInsert: false,
     defaultValue: const Constant(''),
   );
+  static const VerificationMeta _recurringDaysMeta = const VerificationMeta(
+    'recurringDays',
+  );
+  @override
+  late final GeneratedColumn<String> recurringDays = GeneratedColumn<String>(
+    'recurring_days',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _reminderTimeMeta = const VerificationMeta(
+    'reminderTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reminderTime = GeneratedColumn<DateTime>(
+    'reminder_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -140,6 +163,8 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
     isCompleted,
     progress,
     motivationQuote,
+    recurringDays,
+    reminderTime,
     createdAt,
     completedAt,
   ];
@@ -219,6 +244,24 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         ),
       );
     }
+    if (data.containsKey('recurring_days')) {
+      context.handle(
+        _recurringDaysMeta,
+        recurringDays.isAcceptableOrUnknown(
+          data['recurring_days']!,
+          _recurringDaysMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_time')) {
+      context.handle(
+        _reminderTimeMeta,
+        reminderTime.isAcceptableOrUnknown(
+          data['reminder_time']!,
+          _reminderTimeMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -283,6 +326,14 @@ class $GoalsTable extends Goals with TableInfo<$GoalsTable, Goal> {
         DriftSqlType.string,
         data['${effectivePrefix}motivation_quote'],
       )!,
+      recurringDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}recurring_days'],
+      )!,
+      reminderTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}reminder_time'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -313,6 +364,8 @@ class Goal extends DataClass implements Insertable<Goal> {
   final bool isCompleted;
   final double progress;
   final String motivationQuote;
+  final String recurringDays;
+  final DateTime? reminderTime;
   final DateTime createdAt;
   final DateTime? completedAt;
   const Goal({
@@ -325,6 +378,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     required this.isCompleted,
     required this.progress,
     required this.motivationQuote,
+    required this.recurringDays,
+    this.reminderTime,
     required this.createdAt,
     this.completedAt,
   });
@@ -344,6 +399,10 @@ class Goal extends DataClass implements Insertable<Goal> {
     map['is_completed'] = Variable<bool>(isCompleted);
     map['progress'] = Variable<double>(progress);
     map['motivation_quote'] = Variable<String>(motivationQuote);
+    map['recurring_days'] = Variable<String>(recurringDays);
+    if (!nullToAbsent || reminderTime != null) {
+      map['reminder_time'] = Variable<DateTime>(reminderTime);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || completedAt != null) {
       map['completed_at'] = Variable<DateTime>(completedAt);
@@ -362,6 +421,10 @@ class Goal extends DataClass implements Insertable<Goal> {
       isCompleted: Value(isCompleted),
       progress: Value(progress),
       motivationQuote: Value(motivationQuote),
+      recurringDays: Value(recurringDays),
+      reminderTime: reminderTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderTime),
       createdAt: Value(createdAt),
       completedAt: completedAt == null && nullToAbsent
           ? const Value.absent()
@@ -386,6 +449,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       progress: serializer.fromJson<double>(json['progress']),
       motivationQuote: serializer.fromJson<String>(json['motivationQuote']),
+      recurringDays: serializer.fromJson<String>(json['recurringDays']),
+      reminderTime: serializer.fromJson<DateTime?>(json['reminderTime']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
     );
@@ -405,6 +470,8 @@ class Goal extends DataClass implements Insertable<Goal> {
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'progress': serializer.toJson<double>(progress),
       'motivationQuote': serializer.toJson<String>(motivationQuote),
+      'recurringDays': serializer.toJson<String>(recurringDays),
+      'reminderTime': serializer.toJson<DateTime?>(reminderTime),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'completedAt': serializer.toJson<DateTime?>(completedAt),
     };
@@ -420,6 +487,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     bool? isCompleted,
     double? progress,
     String? motivationQuote,
+    String? recurringDays,
+    Value<DateTime?> reminderTime = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> completedAt = const Value.absent(),
   }) => Goal(
@@ -432,6 +501,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     isCompleted: isCompleted ?? this.isCompleted,
     progress: progress ?? this.progress,
     motivationQuote: motivationQuote ?? this.motivationQuote,
+    recurringDays: recurringDays ?? this.recurringDays,
+    reminderTime: reminderTime.present ? reminderTime.value : this.reminderTime,
     createdAt: createdAt ?? this.createdAt,
     completedAt: completedAt.present ? completedAt.value : this.completedAt,
   );
@@ -454,6 +525,12 @@ class Goal extends DataClass implements Insertable<Goal> {
       motivationQuote: data.motivationQuote.present
           ? data.motivationQuote.value
           : this.motivationQuote,
+      recurringDays: data.recurringDays.present
+          ? data.recurringDays.value
+          : this.recurringDays,
+      reminderTime: data.reminderTime.present
+          ? data.reminderTime.value
+          : this.reminderTime,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       completedAt: data.completedAt.present
           ? data.completedAt.value
@@ -473,6 +550,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           ..write('isCompleted: $isCompleted, ')
           ..write('progress: $progress, ')
           ..write('motivationQuote: $motivationQuote, ')
+          ..write('recurringDays: $recurringDays, ')
+          ..write('reminderTime: $reminderTime, ')
           ..write('createdAt: $createdAt, ')
           ..write('completedAt: $completedAt')
           ..write(')'))
@@ -490,6 +569,8 @@ class Goal extends DataClass implements Insertable<Goal> {
     isCompleted,
     progress,
     motivationQuote,
+    recurringDays,
+    reminderTime,
     createdAt,
     completedAt,
   );
@@ -506,6 +587,8 @@ class Goal extends DataClass implements Insertable<Goal> {
           other.isCompleted == this.isCompleted &&
           other.progress == this.progress &&
           other.motivationQuote == this.motivationQuote &&
+          other.recurringDays == this.recurringDays &&
+          other.reminderTime == this.reminderTime &&
           other.createdAt == this.createdAt &&
           other.completedAt == this.completedAt);
 }
@@ -520,6 +603,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
   final Value<bool> isCompleted;
   final Value<double> progress;
   final Value<String> motivationQuote;
+  final Value<String> recurringDays;
+  final Value<DateTime?> reminderTime;
   final Value<DateTime> createdAt;
   final Value<DateTime?> completedAt;
   final Value<int> rowid;
@@ -533,6 +618,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.isCompleted = const Value.absent(),
     this.progress = const Value.absent(),
     this.motivationQuote = const Value.absent(),
+    this.recurringDays = const Value.absent(),
+    this.reminderTime = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.completedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -547,6 +634,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     this.isCompleted = const Value.absent(),
     this.progress = const Value.absent(),
     this.motivationQuote = const Value.absent(),
+    this.recurringDays = const Value.absent(),
+    this.reminderTime = const Value.absent(),
     required DateTime createdAt,
     this.completedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -567,6 +656,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Expression<bool>? isCompleted,
     Expression<double>? progress,
     Expression<String>? motivationQuote,
+    Expression<String>? recurringDays,
+    Expression<DateTime>? reminderTime,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? completedAt,
     Expression<int>? rowid,
@@ -581,6 +672,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       if (isCompleted != null) 'is_completed': isCompleted,
       if (progress != null) 'progress': progress,
       if (motivationQuote != null) 'motivation_quote': motivationQuote,
+      if (recurringDays != null) 'recurring_days': recurringDays,
+      if (reminderTime != null) 'reminder_time': reminderTime,
       if (createdAt != null) 'created_at': createdAt,
       if (completedAt != null) 'completed_at': completedAt,
       if (rowid != null) 'rowid': rowid,
@@ -597,6 +690,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     Value<bool>? isCompleted,
     Value<double>? progress,
     Value<String>? motivationQuote,
+    Value<String>? recurringDays,
+    Value<DateTime?>? reminderTime,
     Value<DateTime>? createdAt,
     Value<DateTime?>? completedAt,
     Value<int>? rowid,
@@ -611,6 +706,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
       isCompleted: isCompleted ?? this.isCompleted,
       progress: progress ?? this.progress,
       motivationQuote: motivationQuote ?? this.motivationQuote,
+      recurringDays: recurringDays ?? this.recurringDays,
+      reminderTime: reminderTime ?? this.reminderTime,
       createdAt: createdAt ?? this.createdAt,
       completedAt: completedAt ?? this.completedAt,
       rowid: rowid ?? this.rowid,
@@ -649,6 +746,12 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
     if (motivationQuote.present) {
       map['motivation_quote'] = Variable<String>(motivationQuote.value);
     }
+    if (recurringDays.present) {
+      map['recurring_days'] = Variable<String>(recurringDays.value);
+    }
+    if (reminderTime.present) {
+      map['reminder_time'] = Variable<DateTime>(reminderTime.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -673,6 +776,8 @@ class GoalsCompanion extends UpdateCompanion<Goal> {
           ..write('isCompleted: $isCompleted, ')
           ..write('progress: $progress, ')
           ..write('motivationQuote: $motivationQuote, ')
+          ..write('recurringDays: $recurringDays, ')
+          ..write('reminderTime: $reminderTime, ')
           ..write('createdAt: $createdAt, ')
           ..write('completedAt: $completedAt, ')
           ..write('rowid: $rowid')
@@ -795,6 +900,17 @@ class $DailyTasksTable extends DailyTasks
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _completionNoteMeta = const VerificationMeta(
+    'completionNote',
+  );
+  @override
+  late final GeneratedColumn<String> completionNote = GeneratedColumn<String>(
+    'completion_note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -807,6 +923,7 @@ class $DailyTasksTable extends DailyTasks
     reminderTime,
     priority,
     createdAt,
+    completionNote,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -898,6 +1015,15 @@ class $DailyTasksTable extends DailyTasks
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('completion_note')) {
+      context.handle(
+        _completionNoteMeta,
+        completionNote.isAcceptableOrUnknown(
+          data['completion_note']!,
+          _completionNoteMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -949,6 +1075,10 @@ class $DailyTasksTable extends DailyTasks
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      completionNote: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}completion_note'],
+      ),
     );
   }
 
@@ -972,6 +1102,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
   final DateTime? reminderTime;
   final Priority priority;
   final DateTime createdAt;
+  final String? completionNote;
   const DailyTask({
     required this.id,
     required this.goalId,
@@ -983,6 +1114,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
     this.reminderTime,
     required this.priority,
     required this.createdAt,
+    this.completionNote,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1005,6 +1137,9 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
       );
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || completionNote != null) {
+      map['completion_note'] = Variable<String>(completionNote);
+    }
     return map;
   }
 
@@ -1024,6 +1159,9 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
           : Value(reminderTime),
       priority: Value(priority),
       createdAt: Value(createdAt),
+      completionNote: completionNote == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completionNote),
     );
   }
 
@@ -1045,6 +1183,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
         serializer.fromJson<int>(json['priority']),
       ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      completionNote: serializer.fromJson<String?>(json['completionNote']),
     );
   }
   @override
@@ -1063,6 +1202,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
         $DailyTasksTable.$converterpriority.toJson(priority),
       ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'completionNote': serializer.toJson<String?>(completionNote),
     };
   }
 
@@ -1077,6 +1217,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
     Value<DateTime?> reminderTime = const Value.absent(),
     Priority? priority,
     DateTime? createdAt,
+    Value<String?> completionNote = const Value.absent(),
   }) => DailyTask(
     id: id ?? this.id,
     goalId: goalId ?? this.goalId,
@@ -1088,6 +1229,9 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
     reminderTime: reminderTime.present ? reminderTime.value : this.reminderTime,
     priority: priority ?? this.priority,
     createdAt: createdAt ?? this.createdAt,
+    completionNote: completionNote.present
+        ? completionNote.value
+        : this.completionNote,
   );
   DailyTask copyWithCompanion(DailyTasksCompanion data) {
     return DailyTask(
@@ -1111,6 +1255,9 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
           : this.reminderTime,
       priority: data.priority.present ? data.priority.value : this.priority,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      completionNote: data.completionNote.present
+          ? data.completionNote.value
+          : this.completionNote,
     );
   }
 
@@ -1126,7 +1273,8 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
           ..write('completedAt: $completedAt, ')
           ..write('reminderTime: $reminderTime, ')
           ..write('priority: $priority, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('completionNote: $completionNote')
           ..write(')'))
         .toString();
   }
@@ -1143,6 +1291,7 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
     reminderTime,
     priority,
     createdAt,
+    completionNote,
   );
   @override
   bool operator ==(Object other) =>
@@ -1157,7 +1306,8 @@ class DailyTask extends DataClass implements Insertable<DailyTask> {
           other.completedAt == this.completedAt &&
           other.reminderTime == this.reminderTime &&
           other.priority == this.priority &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.completionNote == this.completionNote);
 }
 
 class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
@@ -1171,6 +1321,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
   final Value<DateTime?> reminderTime;
   final Value<Priority> priority;
   final Value<DateTime> createdAt;
+  final Value<String?> completionNote;
   final Value<int> rowid;
   const DailyTasksCompanion({
     this.id = const Value.absent(),
@@ -1183,6 +1334,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
     this.reminderTime = const Value.absent(),
     this.priority = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.completionNote = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DailyTasksCompanion.insert({
@@ -1196,6 +1348,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
     this.reminderTime = const Value.absent(),
     this.priority = const Value.absent(),
     required DateTime createdAt,
+    this.completionNote = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        goalId = Value(goalId),
@@ -1214,6 +1367,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
     Expression<DateTime>? reminderTime,
     Expression<int>? priority,
     Expression<DateTime>? createdAt,
+    Expression<String>? completionNote,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1227,6 +1381,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
       if (reminderTime != null) 'reminder_time': reminderTime,
       if (priority != null) 'priority': priority,
       if (createdAt != null) 'created_at': createdAt,
+      if (completionNote != null) 'completion_note': completionNote,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1242,6 +1397,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
     Value<DateTime?>? reminderTime,
     Value<Priority>? priority,
     Value<DateTime>? createdAt,
+    Value<String?>? completionNote,
     Value<int>? rowid,
   }) {
     return DailyTasksCompanion(
@@ -1255,6 +1411,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
       reminderTime: reminderTime ?? this.reminderTime,
       priority: priority ?? this.priority,
       createdAt: createdAt ?? this.createdAt,
+      completionNote: completionNote ?? this.completionNote,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1294,6 +1451,9 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (completionNote.present) {
+      map['completion_note'] = Variable<String>(completionNote.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1313,6 +1473,7 @@ class DailyTasksCompanion extends UpdateCompanion<DailyTask> {
           ..write('reminderTime: $reminderTime, ')
           ..write('priority: $priority, ')
           ..write('createdAt: $createdAt, ')
+          ..write('completionNote: $completionNote, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2074,6 +2235,8 @@ typedef $$GoalsTableCreateCompanionBuilder =
       Value<bool> isCompleted,
       Value<double> progress,
       Value<String> motivationQuote,
+      Value<String> recurringDays,
+      Value<DateTime?> reminderTime,
       required DateTime createdAt,
       Value<DateTime?> completedAt,
       Value<int> rowid,
@@ -2089,6 +2252,8 @@ typedef $$GoalsTableUpdateCompanionBuilder =
       Value<bool> isCompleted,
       Value<double> progress,
       Value<String> motivationQuote,
+      Value<String> recurringDays,
+      Value<DateTime?> reminderTime,
       Value<DateTime> createdAt,
       Value<DateTime?> completedAt,
       Value<int> rowid,
@@ -2145,6 +2310,16 @@ class $$GoalsTableFilterComposer extends Composer<_$AppDatabase, $GoalsTable> {
 
   ColumnFilters<String> get motivationQuote => $composableBuilder(
     column: $table.motivationQuote,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get recurringDays => $composableBuilder(
+    column: $table.recurringDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2213,6 +2388,16 @@ class $$GoalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get recurringDays => $composableBuilder(
+    column: $table.recurringDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -2268,6 +2453,16 @@ class $$GoalsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get recurringDays => $composableBuilder(
+    column: $table.recurringDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reminderTime => $composableBuilder(
+    column: $table.reminderTime,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -2314,6 +2509,8 @@ class $$GoalsTableTableManager
                 Value<bool> isCompleted = const Value.absent(),
                 Value<double> progress = const Value.absent(),
                 Value<String> motivationQuote = const Value.absent(),
+                Value<String> recurringDays = const Value.absent(),
+                Value<DateTime?> reminderTime = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2327,6 +2524,8 @@ class $$GoalsTableTableManager
                 isCompleted: isCompleted,
                 progress: progress,
                 motivationQuote: motivationQuote,
+                recurringDays: recurringDays,
+                reminderTime: reminderTime,
                 createdAt: createdAt,
                 completedAt: completedAt,
                 rowid: rowid,
@@ -2342,6 +2541,8 @@ class $$GoalsTableTableManager
                 Value<bool> isCompleted = const Value.absent(),
                 Value<double> progress = const Value.absent(),
                 Value<String> motivationQuote = const Value.absent(),
+                Value<String> recurringDays = const Value.absent(),
+                Value<DateTime?> reminderTime = const Value.absent(),
                 required DateTime createdAt,
                 Value<DateTime?> completedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2355,6 +2556,8 @@ class $$GoalsTableTableManager
                 isCompleted: isCompleted,
                 progress: progress,
                 motivationQuote: motivationQuote,
+                recurringDays: recurringDays,
+                reminderTime: reminderTime,
                 createdAt: createdAt,
                 completedAt: completedAt,
                 rowid: rowid,
@@ -2393,6 +2596,7 @@ typedef $$DailyTasksTableCreateCompanionBuilder =
       Value<DateTime?> reminderTime,
       Value<Priority> priority,
       required DateTime createdAt,
+      Value<String?> completionNote,
       Value<int> rowid,
     });
 typedef $$DailyTasksTableUpdateCompanionBuilder =
@@ -2407,6 +2611,7 @@ typedef $$DailyTasksTableUpdateCompanionBuilder =
       Value<DateTime?> reminderTime,
       Value<Priority> priority,
       Value<DateTime> createdAt,
+      Value<String?> completionNote,
       Value<int> rowid,
     });
 
@@ -2469,6 +2674,11 @@ class $$DailyTasksTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<String> get completionNote => $composableBuilder(
+    column: $table.completionNote,
+    builder: (column) => ColumnFilters(column),
+  );
 }
 
 class $$DailyTasksTableOrderingComposer
@@ -2529,6 +2739,11 @@ class $$DailyTasksTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get completionNote => $composableBuilder(
+    column: $table.completionNote,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DailyTasksTableAnnotationComposer
@@ -2579,6 +2794,11 @@ class $$DailyTasksTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get completionNote => $composableBuilder(
+    column: $table.completionNote,
+    builder: (column) => column,
+  );
 }
 
 class $$DailyTasksTableTableManager
@@ -2622,6 +2842,7 @@ class $$DailyTasksTableTableManager
                 Value<DateTime?> reminderTime = const Value.absent(),
                 Value<Priority> priority = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> completionNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyTasksCompanion(
                 id: id,
@@ -2634,6 +2855,7 @@ class $$DailyTasksTableTableManager
                 reminderTime: reminderTime,
                 priority: priority,
                 createdAt: createdAt,
+                completionNote: completionNote,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2648,6 +2870,7 @@ class $$DailyTasksTableTableManager
                 Value<DateTime?> reminderTime = const Value.absent(),
                 Value<Priority> priority = const Value.absent(),
                 required DateTime createdAt,
+                Value<String?> completionNote = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DailyTasksCompanion.insert(
                 id: id,
@@ -2660,6 +2883,7 @@ class $$DailyTasksTableTableManager
                 reminderTime: reminderTime,
                 priority: priority,
                 createdAt: createdAt,
+                completionNote: completionNote,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
