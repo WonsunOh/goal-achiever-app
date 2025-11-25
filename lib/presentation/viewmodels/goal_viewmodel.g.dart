@@ -6,7 +6,7 @@ part of 'goal_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$goalByIdHash() => r'374c41ff018b17bfa69c30e7de1a9e22b290a8a1';
+String _$goalByIdHash() => r'0e59f4d7ddf85d3126a03bcca6e72de871f4c45f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -64,7 +64,7 @@ class GoalByIdFamily extends Family<AsyncValue<Goal?>> {
 }
 
 /// See also [goalById].
-class GoalByIdProvider extends AutoDisposeFutureProvider<Goal?> {
+class GoalByIdProvider extends AutoDisposeStreamProvider<Goal?> {
   /// See also [goalById].
   GoalByIdProvider(String id)
     : this._internal(
@@ -92,7 +92,7 @@ class GoalByIdProvider extends AutoDisposeFutureProvider<Goal?> {
   final String id;
 
   @override
-  Override overrideWith(FutureOr<Goal?> Function(GoalByIdRef provider) create) {
+  Override overrideWith(Stream<Goal?> Function(GoalByIdRef provider) create) {
     return ProviderOverride(
       origin: this,
       override: GoalByIdProvider._internal(
@@ -108,7 +108,7 @@ class GoalByIdProvider extends AutoDisposeFutureProvider<Goal?> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<Goal?> createElement() {
+  AutoDisposeStreamProviderElement<Goal?> createElement() {
     return _GoalByIdProviderElement(this);
   }
 
@@ -128,12 +128,12 @@ class GoalByIdProvider extends AutoDisposeFutureProvider<Goal?> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin GoalByIdRef on AutoDisposeFutureProviderRef<Goal?> {
+mixin GoalByIdRef on AutoDisposeStreamProviderRef<Goal?> {
   /// The parameter `id` of this provider.
   String get id;
 }
 
-class _GoalByIdProviderElement extends AutoDisposeFutureProviderElement<Goal?>
+class _GoalByIdProviderElement extends AutoDisposeStreamProviderElement<Goal?>
     with GoalByIdRef {
   _GoalByIdProviderElement(super.provider);
 
@@ -141,7 +141,7 @@ class _GoalByIdProviderElement extends AutoDisposeFutureProviderElement<Goal?>
   String get id => (origin as GoalByIdProvider).id;
 }
 
-String _$goalViewModelHash() => r'11b30dce454071f3360160c7026ab19d39ba7f62';
+String _$goalViewModelHash() => r'047f2f371506290ff6453868020dab354c9779f4';
 
 /// See also [GoalViewModel].
 @ProviderFor(GoalViewModel)

@@ -23,6 +23,12 @@ class GoalRepository {
     return goal != null ? _mapToModel(goal) : null;
   }
 
+  Stream<model.Goal?> watchGoalById(String id) {
+    return _database.watchGoalById(id).map(
+          (goal) => goal != null ? _mapToModel(goal) : null,
+        );
+  }
+
   Future<void> createGoal(model.Goal goal) async {
     await _database.insertGoal(_mapToCompanion(goal));
   }

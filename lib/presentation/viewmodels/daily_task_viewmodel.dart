@@ -79,6 +79,55 @@ class DailyTaskViewModel extends _$DailyTaskViewModel {
     await notificationService.cancelTaskReminder(id);
   }
 
+  /// 할일을 다른 날짜로 복사
+  Future<void> copyTask({
+    required DailyTask originalTask,
+    required DateTime newDate,
+  }) async {
+    final repository = ref.read(dailyTaskRepositoryProvider);
+    final notificationService = ref.read(notificationServiceProvider);
+
+    final taskId = _uuid.v4();
+
+    // 알림 시간을 새 날짜에 맞게 조정
+    DateTime? newReminderTime;
+    if (originalTask.reminderTime != null) {
+      newReminderTime = DateTime(
+        newDate.year,
+        newDate.month,
+        newDate.day,
+        originalTask.reminderTime!.hour,
+        originalTask.reminderTime!.minute,
+      );
+    }
+
+    // 새로운 할일 생성 (미완료 상태로)
+    final newTask = DailyTask(
+      id: taskId,
+      goalId: originalTask.goalId,
+      title: originalTask.title,
+      description: originalTask.description,
+      scheduledDate: newDate,
+      reminderTime: newReminderTime,
+      priority: originalTask.priority,
+      createdAt: DateTime.now(),
+      isCompleted: false,
+      completedAt: null,
+      completionNote: null,
+    );
+
+    await repository.createTask(newTask);
+
+    // 알림 설정
+    if (newReminderTime != null && newReminderTime.isAfter(DateTime.now())) {
+      await notificationService.scheduleTaskReminder(
+        taskId: taskId,
+        taskTitle: newTask.title,
+        reminderTime: newReminderTime,
+      );
+    }
+  }
+
   /// 할일 완료 토글 - 획득한 배지 목록 반환
   Future<List<Badge>> toggleTaskCompletion(String id) async {
     final repository = ref.read(dailyTaskRepositoryProvider);
@@ -207,9 +256,9 @@ class DailyTaskViewModel extends _$DailyTaskViewModel {
 }
 
 @riverpod
-Future<List<DailyTask>> tasksByGoalId(TasksByGoalIdRef ref, String goalId) async {
+Stream<List<DailyTask>> tasksByGoalId(TasksByGoalIdRef ref, String goalId) {
   final repository = ref.watch(dailyTaskRepositoryProvider);
-  return repository.getTasksByGoalId(goalId);
+  return repository.watchTasksByGoalId(goalId);
 }
 
 @riverpod

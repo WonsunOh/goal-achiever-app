@@ -17,6 +17,12 @@ class DailyTaskRepository {
     return tasks.map(_mapToModel).toList();
   }
 
+  Stream<List<model.DailyTask>> watchTasksByGoalId(String goalId) {
+    return _database.watchTasksByGoalId(goalId).map(
+          (tasks) => tasks.map(_mapToModel).toList(),
+        );
+  }
+
   Future<List<model.DailyTask>> getTasksByDate(DateTime date) async {
     final tasks = await _database.getTasksByDate(date);
     return tasks.map(_mapToModel).toList();
@@ -43,6 +49,30 @@ class DailyTaskRepository {
   /// goalId에 해당하는 모든 할일 삭제
   Future<void> deleteTasksByGoalId(String goalId) async {
     await _database.deleteTasksByGoalId(goalId);
+  }
+
+  /// goalId에 해당하고, 오늘 이후이며, 미완료된, 특정 요일의 할일 삭제
+  Future<int> deleteFutureUncompletedTasksByWeekdays({
+    required String goalId,
+    required List<int> weekdays,
+    required DateTime fromDate,
+  }) async {
+    return await _database.deleteFutureUncompletedTasksByWeekdays(
+      goalId: goalId,
+      weekdays: weekdays,
+      fromDate: fromDate,
+    );
+  }
+
+  /// goalId에 해당하고, 특정 날짜 이후의 미완료 할일 삭제
+  Future<int> deleteTasksAfterDate({
+    required String goalId,
+    required DateTime afterDate,
+  }) async {
+    return await _database.deleteTasksAfterDate(
+      goalId: goalId,
+      afterDate: afterDate,
+    );
   }
 
   Future<void> toggleTaskCompletion(String id) async {

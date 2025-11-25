@@ -16,6 +16,16 @@ class TaskItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 날짜가 지났는지 확인
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final taskDate = DateTime(
+      task.scheduledDate.year,
+      task.scheduledDate.month,
+      task.scheduledDate.day,
+    );
+    final isOverdue = !task.isCompleted && taskDate.isBefore(today);
+
     return Card(
       child: InkWell(
         onTap: () {
@@ -40,13 +50,23 @@ class TaskItem extends ConsumerWidget {
                 decoration: BoxDecoration(
                   color: task.isCompleted
                       ? AppColors.success.withOpacity(0.1)
-                      : AppColors.primary.withOpacity(0.1),
+                      : isOverdue
+                          ? AppColors.error.withOpacity(0.1)
+                          : AppColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  task.isCompleted ? Icons.check : Icons.radio_button_unchecked,
+                  task.isCompleted
+                      ? Icons.check
+                      : isOverdue
+                          ? Icons.close
+                          : Icons.radio_button_unchecked,
                   size: 20,
-                  color: task.isCompleted ? AppColors.success : AppColors.primary,
+                  color: task.isCompleted
+                      ? AppColors.success
+                      : isOverdue
+                          ? AppColors.error
+                          : AppColors.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -390,6 +410,44 @@ class TaskItem extends ConsumerWidget {
               ),
             ],
             const Divider(),
+            // 다른 날짜로 복사
+            ListTile(
+              leading: const Icon(Icons.copy, color: AppColors.primary),
+              title: const Text('다른 날로 복사'),
+              subtitle: const Text('이 할일을 다른 날짜로 복사합니다'),
+              onTap: () async {
+                Navigator.pop(sheetContext);
+                // 날짜 선택 다이얼로그
+                final selectedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+                if (selectedDate != null && context.mounted) {
+                  final normalizedSelectedDate = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                  );
+                  await ref
+                      .read(dailyTaskViewModelProvider(normalizedDate).notifier)
+                      .copyTask(
+                        originalTask: task,
+                        newDate: normalizedSelectedDate,
+                      );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${selectedDate.month}월 ${selectedDate.day}일로 복사되었습니다',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
             // 삭제 (공통)
             ListTile(
               leading: const Icon(Icons.delete, color: AppColors.error),

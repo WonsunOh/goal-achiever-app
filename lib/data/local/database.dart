@@ -108,6 +108,11 @@ class AppDatabase extends _$AppDatabase {
 
   Stream<List<Goal>> watchAllGoals() => select(goals).watch();
 
+  Stream<Goal?> watchGoalById(String id) {
+    return (select(goals)..where((tbl) => tbl.id.equals(id)))
+        .watchSingleOrNull();
+  }
+
   Future<int> insertGoal(GoalsCompanion goal) => into(goals).insert(goal);
 
   Future<bool> updateGoal(GoalsCompanion goal) => update(goals).replace(goal);
@@ -121,6 +126,10 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<DailyTask>> getTasksByGoalId(String goalId) {
     return (select(dailyTasks)..where((tbl) => tbl.goalId.equals(goalId))).get();
+  }
+
+  Stream<List<DailyTask>> watchTasksByGoalId(String goalId) {
+    return (select(dailyTasks)..where((tbl) => tbl.goalId.equals(goalId))).watch();
   }
 
   Future<List<DailyTask>> getTasksByDate(DateTime date) {
@@ -156,6 +165,52 @@ class AppDatabase extends _$AppDatabase {
   /// goalId에 해당하는 모든 할일 삭제
   Future<int> deleteTasksByGoalId(String goalId) {
     return (delete(dailyTasks)..where((tbl) => tbl.goalId.equals(goalId))).go();
+  }
+
+  /// goalId에 해당하고, 오늘 이후이며, 미완료된, 특정 요일의 할일 삭제
+  /// [weekdays]는 1(월)~7(일)의 목록
+  Future<int> deleteFutureUncompletedTasksByWeekdays({
+    required String goalId,
+    required List<int> weekdays,
+    required DateTime fromDate,
+  }) async {
+    // 오늘 날짜 기준
+    final today = DateTime(fromDate.year, fromDate.month, fromDate.day);
+
+    // 해당 goalId의 미래 미완료 할일들 조회
+    final tasks = await (select(dailyTasks)
+      ..where((tbl) =>
+          tbl.goalId.equals(goalId) &
+          tbl.isCompleted.equals(false) &
+          tbl.scheduledDate.isBiggerOrEqualValue(today)))
+        .get();
+
+    // 삭제할 요일에 해당하는 할일 필터링 후 삭제
+    int deletedCount = 0;
+    for (final task in tasks) {
+      if (weekdays.contains(task.scheduledDate.weekday)) {
+        await (delete(dailyTasks)..where((tbl) => tbl.id.equals(task.id))).go();
+        deletedCount++;
+      }
+    }
+
+    return deletedCount;
+  }
+
+  /// goalId에 해당하고, 특정 날짜 이후의 미완료 할일 삭제
+  Future<int> deleteTasksAfterDate({
+    required String goalId,
+    required DateTime afterDate,
+  }) async {
+    final cutoffDate = DateTime(afterDate.year, afterDate.month, afterDate.day)
+        .add(const Duration(days: 1));
+
+    return await (delete(dailyTasks)
+          ..where((tbl) =>
+              tbl.goalId.equals(goalId) &
+              tbl.isCompleted.equals(false) &
+              tbl.scheduledDate.isBiggerOrEqualValue(cutoffDate)))
+        .go();
   }
 
   // Achievements CRUD

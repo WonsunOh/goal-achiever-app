@@ -107,21 +107,26 @@ class _MotivationCardState extends State<MotivationCard>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (widget.showGreeting)
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.light_mode,
-                      size: 24,
-                      color: Colors.white,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _motivationService.getGreeting(),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white70,
-                          ),
-                    ),
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.light_mode,
+                        size: 24,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          _motivationService.getGreeting(),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white70,
+                              ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               if (widget.allowRefresh)
                 IconButton(

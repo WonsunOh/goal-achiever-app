@@ -6,7 +6,7 @@ part of 'daily_task_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$tasksByGoalIdHash() => r'76397b369fee370962016330db777b67c2881170';
+String _$tasksByGoalIdHash() => r'f7fcc60d7f4355a254211e53cf40ec10eebc47af';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -66,7 +66,7 @@ class TasksByGoalIdFamily extends Family<AsyncValue<List<DailyTask>>> {
 }
 
 /// See also [tasksByGoalId].
-class TasksByGoalIdProvider extends AutoDisposeFutureProvider<List<DailyTask>> {
+class TasksByGoalIdProvider extends AutoDisposeStreamProvider<List<DailyTask>> {
   /// See also [tasksByGoalId].
   TasksByGoalIdProvider(String goalId)
     : this._internal(
@@ -96,7 +96,7 @@ class TasksByGoalIdProvider extends AutoDisposeFutureProvider<List<DailyTask>> {
 
   @override
   Override overrideWith(
-    FutureOr<List<DailyTask>> Function(TasksByGoalIdRef provider) create,
+    Stream<List<DailyTask>> Function(TasksByGoalIdRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -113,7 +113,7 @@ class TasksByGoalIdProvider extends AutoDisposeFutureProvider<List<DailyTask>> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<List<DailyTask>> createElement() {
+  AutoDisposeStreamProviderElement<List<DailyTask>> createElement() {
     return _TasksByGoalIdProviderElement(this);
   }
 
@@ -133,13 +133,13 @@ class TasksByGoalIdProvider extends AutoDisposeFutureProvider<List<DailyTask>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin TasksByGoalIdRef on AutoDisposeFutureProviderRef<List<DailyTask>> {
+mixin TasksByGoalIdRef on AutoDisposeStreamProviderRef<List<DailyTask>> {
   /// The parameter `goalId` of this provider.
   String get goalId;
 }
 
 class _TasksByGoalIdProviderElement
-    extends AutoDisposeFutureProviderElement<List<DailyTask>>
+    extends AutoDisposeStreamProviderElement<List<DailyTask>>
     with TasksByGoalIdRef {
   _TasksByGoalIdProviderElement(super.provider);
 
@@ -183,7 +183,7 @@ final taskStatisticsProvider =
 // ignore: unused_element
 typedef TaskStatisticsRef = AutoDisposeFutureProviderRef<TaskStatistics>;
 String _$dailyTaskViewModelHash() =>
-    r'82e23961ec0ae41562ceecc31f048c6d88330fad';
+    r'f6fcd60b64a564bbd549d6f21e1b13fdf3f0afe8';
 
 abstract class _$DailyTaskViewModel
     extends BuildlessAutoDisposeStreamNotifier<List<DailyTask>> {

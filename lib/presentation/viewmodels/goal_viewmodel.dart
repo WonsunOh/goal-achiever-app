@@ -114,18 +114,49 @@ class GoalViewModel extends _$GoalViewModel {
 
   Future<void> updateGoal(Goal goal, {Goal? oldGoal}) async {
     final repository = ref.read(goalRepositoryProvider);
+    final taskRepository = ref.read(dailyTaskRepositoryProvider);
 
     // 기존 목표 정보 가져오기 (oldGoal이 없으면 DB에서 조회)
     final previousGoal = oldGoal ?? await repository.getGoalById(goal.id);
 
     await repository.updateGoal(goal);
 
-    // 실행주기가 변경되었는지 확인
-    if (previousGoal != null && goal.recurringDays.isNotEmpty) {
+    if (previousGoal != null) {
+      // 1. 목표 기간 변경 처리
+      final oldTargetDate = DateTime(
+        previousGoal.targetDate.year,
+        previousGoal.targetDate.month,
+        previousGoal.targetDate.day,
+      );
+      final newTargetDate = DateTime(
+        goal.targetDate.year,
+        goal.targetDate.month,
+        goal.targetDate.day,
+      );
+
+      if (newTargetDate.isBefore(oldTargetDate)) {
+        // 목표 기간이 줄어든 경우: 새 목표일 이후의 미완료 할일 삭제
+        await taskRepository.deleteTasksAfterDate(
+          goalId: goal.id,
+          afterDate: newTargetDate,
+        );
+      } else if (newTargetDate.isAfter(oldTargetDate) && goal.recurringDays.isNotEmpty) {
+        // 목표 기간이 늘어난 경우: 연장된 기간에 할일 생성
+        await _createRecurringTasks(
+          goalId: goal.id,
+          goalTitle: goal.title,
+          startDate: oldTargetDate.add(const Duration(days: 1)), // 이전 목표일 다음날부터
+          targetDate: newTargetDate,
+          recurringDays: goal.recurringDays,
+          reminderTime: goal.reminderTime,
+        );
+      }
+
+      // 2. 실행주기가 변경되었는지 확인
       final oldDays = previousGoal.recurringDays.toSet();
       final newDays = goal.recurringDays.toSet();
 
-      // 새로 추가된 요일이 있으면 할일 생성
+      // 새로 추가된 요일이 있으면 할일 생성 (오늘부터 목표일까지)
       final addedDays = newDays.difference(oldDays);
       if (addedDays.isNotEmpty) {
         await _createRecurringTasks(
@@ -135,6 +166,16 @@ class GoalViewModel extends _$GoalViewModel {
           targetDate: goal.targetDate,
           recurringDays: addedDays.toList(),
           reminderTime: goal.reminderTime,
+        );
+      }
+
+      // 삭제된 요일이 있으면 미래의 미완료 할일 삭제
+      final removedDays = oldDays.difference(newDays);
+      if (removedDays.isNotEmpty) {
+        await taskRepository.deleteFutureUncompletedTasksByWeekdays(
+          goalId: goal.id,
+          weekdays: removedDays.toList(),
+          fromDate: DateTime.now(),
         );
       }
     }
@@ -173,7 +214,7 @@ class GoalViewModel extends _$GoalViewModel {
 }
 
 @riverpod
-Future<Goal?> goalById(GoalByIdRef ref, String id) async {
+Stream<Goal?> goalById(GoalByIdRef ref, String id) {
   final repository = ref.watch(goalRepositoryProvider);
-  return repository.getGoalById(id);
+  return repository.watchGoalById(id);
 }
